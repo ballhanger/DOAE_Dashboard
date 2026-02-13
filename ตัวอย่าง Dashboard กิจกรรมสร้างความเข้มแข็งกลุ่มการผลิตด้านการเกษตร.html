@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard รายงานผลการดำเนินงาน (Web Version)</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Chart.js Data Labels Plugin -->
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
+    <!-- Google Fonts: Sarabun -->
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        body {
+            font-family: 'Sarabun', sans-serif;
+            background-color: #f3f4f6;
+            color: #1f2937;
+        }
+        .card {
+            background-color: white;
+            border-radius: 16px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            padding: 24px;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+        .chart-container-large {
+            position: relative;
+            flex-grow: 1;
+            min-height: 300px;
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .chart-container-wide {
+            position: relative;
+            height: 600px; /* เพิ่มความสูงเพื่อให้ชื่อกิจกรรมขนาดใหญ่ไม่เบียดกัน */
+            width: 100%;
+        }
+        /* กลับมาใช้ขนาดหัวข้อมาตรฐานที่ดูสบายตา */
+        h1 { font-size: 1.875rem; font-weight: 700; color: #312e81; margin-bottom: 0.5rem; }
+        h2 { font-size: 1.5rem; font-weight: 600; color: #4338ca; }
+    </style>
+</head>
+<body class="p-6">
+
+    <!-- Header -->
+    <div class="max-w-7xl mx-auto mb-8 text-center">
+        <h1>โครงการส่งเสริมและพัฒนาเกษตรกรและองค์กรเกษตรกร</h1>
+        <h2 class="text-indigo-700">กิจกรรมสร้างความเข้มแข็งกลุ่มการผลิตด้านการเกษตร</h2>
+    </div>
+
+    <div class="max-w-7xl mx-auto space-y-6">
+        
+        <!-- Row 1: Layout (Left Big, Right Small) -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            
+            <!-- Chart 2: Overall Performance (ซ้าย - ใหญ่ 2 ส่วน) -->
+            <div class="card border-l-8 border-blue-800 lg:col-span-2">
+                <div class="flex justify-between items-start mb-4">
+                    <h3 class="text-xl font-bold flex items-center text-gray-800">
+                        <span class="bg-blue-100 text-blue-800 p-2 rounded-full mr-3">📊</span> 
+                        ผลการดำเนินงาน
+                    </h3>
+                    <span class="text-sm font-normal bg-gray-100 px-3 py-1 rounded-full text-gray-600 font-bold">เป้าหมายรวม 10,395 ราย</span>
+                </div>
+                <div class="chart-container-large">
+                    <canvas id="overallChart"></canvas>
+                </div>
+                 <div class="mt-4 text-center">
+                    <p class="text-lg font-bold text-gray-700">
+                        ผลงานสะสม: <span class="text-blue-800">3,146</span> ราย (30.30%)
+                    </p>
+                </div>
+            </div>
+
+            <!-- Chart 1: Budget Status (ขวา - เล็ก 1 ส่วน) -->
+            <div class="card border-l-8 border-orange-500">
+                <div class="flex flex-col justify-between items-start mb-4">
+                    <h3 class="text-xl font-bold flex items-center text-gray-800 mb-2">
+                        <span class="bg-orange-100 text-orange-800 p-2 rounded-full mr-3">💰</span> 
+                        ผลการเบิกจ่าย
+                    </h3>
+                    <span class="text-sm font-normal text-gray-500">งบรวม 29,725,600.00 บาท</span>
+                </div>
+                <div class="chart-container-large">
+                    <canvas id="budgetChart"></canvas>
+                </div>
+                <div class="mt-4 text-center">
+                    <p class="text-lg font-bold text-gray-700">
+                        เบิกจ่ายแล้ว: <span class="text-orange-600">5,979,745.77</span> บาท
+                    </p>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Row 2: Detailed Activities -->
+        <div class="card border-t-8 border-green-700">
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6">
+                <div>
+                    <h3 class="text-2xl font-bold text-green-900 flex items-center mb-2">
+                        <span class="bg-green-100 text-green-800 p-2 rounded-full mr-3">✅</span>
+                        รายละเอียดผลการดำเนินงานรายกิจกรรม (8 กิจกรรม)
+                    </h3>
+                    <p class="text-red-600 font-bold ml-0 md:ml-14 text-sm md:text-base flex items-center">
+                        <span class="mr-2">⚠️</span>
+                        กำหนดเสร็จสิ้นการดำเนินงาน: ไตรมาส 2 (มีนาคม 2569)
+                    </p>
+                </div>
+                <span class="text-sm text-gray-500 bg-gray-100 px-3 py-1 rounded-lg mt-3 md:mt-0 self-start md:self-auto font-bold">หน่วย: ราย</span>
+            </div>
+            
+            <div class="chart-container-wide">
+                <canvas id="activitiesChart"></canvas>
+            </div>
+            <div class="mt-4 text-center text-sm text-gray-500">
+                * กราฟแสดงเปรียบเทียบ เป้าหมาย (สีเทา) และ ผลงานที่ทำได้จริง (สีเขียว) ของแต่ละกิจกรรม
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        // Register Plugin
+        Chart.register(ChartDataLabels);
+        Chart.defaults.font.family = "'Sarabun', sans-serif";
+        Chart.defaults.color = '#333';
+
+        // 1. Budget Data
+        const budgetTotal = 29725600.00;
+        const budgetUsed = 5979745.77;
+        new Chart(document.getElementById('budgetChart'), {
+            type: 'doughnut',
+            data: {
+                labels: ['เบิกจ่ายแล้ว', 'งบประมาณคงเหลือ'],
+                datasets: [{
+                    data: [budgetUsed, budgetTotal - budgetUsed],
+                    backgroundColor: ['#e65100', '#ffcc80'],
+                    borderColor: '#fff',
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                cutout: '60%',
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: { font: { size: 12 }, padding: 15 }
+                    },
+                    datalabels: {
+                        color: (context) => context.dataIndex === 0 ? '#fff' : '#374151',
+                        font: { weight: 'bold', size: 14 },
+                        formatter: (value) => (value * 100 / budgetTotal).toFixed(2) + "%"
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: (context) => ' ' + context.label + ': ' + context.raw.toLocaleString(undefined, {minimumFractionDigits: 2}) + ' บาท'
+                        }
+                    }
+                }
+            }
+        });
+
+        // 2. Overall Performance Data
+        new Chart(document.getElementById('overallChart'), {
+            type: 'bar',
+            data: {
+                labels: ['เป้าหมายรวม', 'ผลการดำเนินงาน'],
+                datasets: [{
+                    data: [10395, 3146],
+                    backgroundColor: ['#cfd8dc', '#1565c0'],
+                    barPercentage: 0.6,
+                    borderRadius: 4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 12000,
+                        grid: { color: '#e5e7eb' },
+                        ticks: { font: { size: 14 } }
+                    },
+                    x: { ticks: { font: { size: 16, weight: 'bold' } } }
+                },
+                plugins: {
+                    legend: { display: false },
+                    datalabels: {
+                        anchor: 'end',
+                        align: 'top',
+                        color: '#333',
+                        font: { weight: 'bold', size: 18 },
+                        formatter: (value, ctx) => ctx.dataIndex === 1 ? `${value.toLocaleString()}\n(30.30%)` : value.toLocaleString()
+                    }
+                }
+            }
+        });
+
+        // 3. Activities Data
+        const activities = [
+            "1. อบรมเกษตร",
+            "2. อบรมกลุ่มส่งเสริมอาชีพการเกษตร",
+            "3. พัฒนาศักยภาพกลุ่มแม่บ้านฯ สู่ Smart Farmer",
+            "4. พัฒนาศักยภาพกลุ่มแม่บ้านฯ สู่ผู้ประกอบการ",
+            "5. จัดกระบวนการเรียนรู้สร้างความมั่นคงอาหาร",
+            "6. อบรมกลุ่มยุวเกษตรกร",
+            "7. จัดกระบวนการเรียนรู้ Smart Group Model",
+            "8. เตรียมความพร้อมเข้าสู่สังคมเกษตรสูงวัย"
+        ];
+        const targetData = [1155, 1155, 1155, 1155, 1155, 2310, 1155, 1155]; 
+        const resultData = [690, 383, 675, 420, 720, 1455, 692, 720]; 
+
+        new Chart(document.getElementById('activitiesChart'), {
+            type: 'bar',
+            data: {
+                labels: activities,
+                datasets: [
+                    {
+                        label: 'เป้าหมาย (Target)',
+                        data: targetData,
+                        backgroundColor: '#e0e0e0',
+                        hoverBackgroundColor: '#bdbdbd',
+                        barPercentage: 0.7,
+                        categoryPercentage: 0.8
+                    },
+                    {
+                        label: 'ผลการดำเนินงาน (Result)',
+                        data: resultData,
+                        backgroundColor: '#2e7d32',
+                        hoverBackgroundColor: '#1b5e20',
+                        barPercentage: 0.7,
+                        categoryPercentage: 0.8
+                    }
+                ]
+            },
+            options: {
+                indexAxis: 'y',
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    x: { display: false },
+                    y: {
+                        ticks: {
+                            font: { size: 18, weight: 'bold' }, // ชื่อกิจกรรมใหญ่ขึ้นตามที่ขอ
+                            color: '#111827',
+                            autoSkip: false,
+                        },
+                        grid: { display: false }
+                    }
+                },
+                plugins: {
+                    legend: { 
+                        position: 'top', 
+                        align: 'end', 
+                        labels: { 
+                            font: { size: 16, weight: 'bold' }, // Legend ใหญ่ขึ้นตามที่ขอ
+                            usePointStyle: true 
+                        } 
+                    },
+                    tooltip: {
+                        callbacks: { label: (context) => context.dataset.label + ': ' + context.raw.toLocaleString() + ' ราย' }
+                    },
+                    datalabels: {
+                        anchor: 'end',
+                        align: 'end',
+                        offset: 4,
+                        color: '#000',
+                        font: { weight: 'bold', size: 13 },
+                        formatter: function(value, context) {
+                            if (context.datasetIndex === 1) { // Result
+                                let target = targetData[context.dataIndex];
+                                let percent = ((value / target) * 100).toFixed(0);
+                                return `ผล: ${value.toLocaleString()} (${percent}%)`;
+                            } 
+                            return `เป้า: ${value.toLocaleString()}`; // Target
+                        }
+                    }
+                },
+                layout: {
+                    padding: { right: 100 }
+                }
+            }
+        });
+    </script>
+</body>
+</html>
